@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猜猜乐</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background-image: url('beijing.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.88);
+            border-radius: 40px;
+            padding: 30px 25px 35px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.10);
+            text-align: center;
+        }
+        h1 {
+            font-size: 32px;
+            color: #6a1b6a;
+            margin: 0 0 4px 0;
+            letter-spacing: 4px;
+            font-weight: 700;
+        }
+        .sub {
+            color: #8e4b7a;
+            font-size: 14px;
+            border-bottom: 1px dashed #f0c0d0;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .status {
+            background: #fce4ec;
+            border-radius: 20px;
+            padding: 12px 14px;
+            font-size: 15px;
+            color: #3e2a36;
+            min-height: 48px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .info {
+            font-size: 14px;
+            color: #5e3e50;
+            display: flex;
+            justify-content: space-between;
+            background: #f8edf2;
+            border-radius: 30px;
+            padding: 6px 18px;
+            margin-bottom: 14px;
+        }
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0 12px 0;
+        }
+        .input-row input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #f0b8c8;
+            border-radius: 30px;
+            font-size: 18px;
+            outline: none;
+            background: #ffffff;
+            font-weight: bold;
+            text-align: center;
+        }
+        .input-row input:focus {
+            border-color: #b080a0;
+        }
+        .btn {
+            background: #ffb6c1;
+            border: none;
+            border-radius: 30px;
+            padding: 0 32px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #5a2a4a;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #d08a9a;
+            transition: 0.1s ease;
+            letter-spacing: 1px;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            transform: none;
+            box-shadow: none;
+            pointer-events: none;
+        }
+        .result-box {
+            background: #f3e5f5;
+            border-radius: 18px;
+            padding: 12px 14px;
+            min-height: 52px;
+            font-size: 14px;
+            color: #3e2a36;
+            line-height: 1.7;
+            border-left: 4px solid #b080a0;
+            margin: 8px 0 12px 0;
+        }
+        .endings {
+            font-size: 13px;
+            color: #6a4a5e;
+            background: #f8edf2;
+            border-radius: 30px;
+            padding: 6px 14px;
+            margin-top: 10px;
+        }
+        .mode-select {
+            margin: 4px 0 12px 0;
+        }
+        .mode-btn {
+            background: #f3e5f5;
+            border: 2px solid #dcc0d8;
+            border-radius: 30px;
+            padding: 6px 14px;
+            margin: 4px 4px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #3e2a36;
+            transition: 0.15s;
+        }
+        .mode-btn.active {
+            background: #c084b0;
+            border-color: #7a4a6a;
+            color: #ffffff;
+            font-weight: bold;
+        }
+        .mode-btn:active {
+            transform: scale(0.94);
+        }
+        .footer {
+            font-size: 12px;
+            color: #a0808e;
+            margin-top: 14px;
+        }
+        .img-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+        .img-popup.show {
+            display: flex;
+        }
+        .img-popup-content {
+            background: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .img-popup-content img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 12px;
+        }
+        .img-popup-content .close-btn {
+            margin-top: 12px;
+            padding: 8px 24px;
+            background: #ffb6c1;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #5a2a4a;
+            font-weight: bold;
+        }
+        .img-popup-content .close-btn:hover {
+            background: #f0a0b0;
+        }
+        .img-popup-content .img-title {
+            font-size: 20px;
+            color: #6a1b6a;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 音乐 -->
+    <audio id="loveMusic" src="love.wav" preload="auto"></audio>
+
+    <div class="container">
+        <h1>猜猜乐</h1>
+        <div class="sub">本喵心里藏了一个数字</div>
+
+        <div class="mode-select">
+            <button class="mode-btn" data-mode="1">1 经典 (0-50)</button>
+            <button class="mode-btn" data-mode="2">2 祈福 (50-100)</button>
+            <button class="mode-btn" data-mode="520">520 挚爱 (500-580)</button>
+            <button class="mode-btn" data-mode="3">3 永恒 (100-300)</button>
+        </div>
+
+        <div class="status" id="statusText">请选择难度开始</div>
+
+        <div class="info">
+            <span id="healthDisplay">血量：--</span>
+            <span id="triesDisplay">已猜：--</span>
+        </div>
+
+        <div class="input-row">
+            <input type="number" id="guessInput" placeholder="输入数字" disabled>
+            <button class="btn" id="guessBtn" disabled>猜</button>
+        </div>
+
+        <div class="result-box" id="resultText">等待开始...</div>
+        <div class="endings" id="endingsText">尚未解锁特殊结局</div>
+        <div class="footer">猜对了有惊喜</div>
+    </div>
+
+    <!-- 图片弹窗 -->
+    <div class="img-popup" id="imgPopup">
+        <div class="img-popup-content">
+            <div class="img-title" id="imgTitle">结局</div>
+            <img id="imgDisplay" src="" alt="结局图片">
+            <br>
+            <button class="close-btn" onclick="closeImgPopup()">关闭</button>
+        </div>
+    </div>
+
+    <script>
+        var low = 0,
+            high = 50,
+            secret = 0,
+            health = 25,
+            maxHealth = 25,
+            tries = 0;
+        var removedNumbers = [],
+            usedShift = false,
+            shiftTriggered = [],
+            unlockedEndings = [];
+        var gameActive = false,
+            penaltyNumber = null,
+            penaltyUsed = false;
+        var loveNumber = null,
+            loveUsed = false,
+            currentMode = null;
+
+        var statusEl = document.getElementById('statusText');
+        var healthDisplay = document.getElementById('healthDisplay');
+        var triesDisplay = document.getElementById('triesDisplay');
+        var resultBox = document.getElementById('resultText');
+        var endingsDisplay = document.getElementById('endingsText');
+        var guessInput = document.getElementById('guessInput');
+        var guessBtn = document.getElementById('guessBtn');
+        var modeBtns = document.querySelectorAll('.mode-btn');
+        var imgPopup = document.getElementById('imgPopup');
+        var imgDisplay = document.getElementById('imgDisplay');
+        var imgTitle = document.getElementById('imgTitle');
+        var loveAudio = document.getElementById('loveMusic');
+
+        function playLoveMusic() {
+            if (loveAudio) {
+                loveAudio.currentTime = 0;
+                loveAudio.play().catch(function(e) {
+                    console.log('音乐播放失败:', e);
+                });
+            }
+        }
+
+        function showImagePopup(imgPath, title) {
+            imgTitle.textContent = title;
+            imgDisplay.src = imgPath;
+            imgDisplay.onerror = function() {
+                this.alt = '图片加载失败：' + imgPath;
+                this.style.display = 'none';
+                setTimeout(function() {
+                    imgPopup.classList.remove('show');
+                }, 500);
+            };
+            imgPopup.classList.add('show');
+        }
+
+        function closeImgPopup() {
+            imgPopup.classList.remove('show');
+        }
+
+        function updateUI() {
+            healthDisplay.textContent = '血量：' + (gameActive ? health : '--');
+            triesDisplay.textContent = '已猜：' + (gameActive ? tries : '--');
+            endingsDisplay.textContent = unlockedEndings.length ? '已解锁：' + unlockedEndings.join('、') : '尚未解锁特殊结局';
+        }
+
+        function setStatus(msg) {
+            statusEl.textContent = msg;
+        }
+
+        function setResult(msg) {
+            resultBox.textContent = msg;
+        }
+
+        function saveEnding(name) {
+            if (unlockedEndings.indexOf(name) === -1) {
+                unlockedEndings.push(name);
+                updateUI();
+            }
+        }
+
+        function endGame(msg, isWin) {
+            gameActive = false;
+            guessInput.disabled = true;
+            guessBtn.disabled = true;
+            setStatus(isWin ? '游戏结束，你赢了' : '游戏结束');
+            setResult(msg);
+            updateUI();
+        }
+
+        function startGame(mode) {
+            currentMode = mode;
+            removedNumbers = [];
+            usedShift = false;
+            shiftTriggered = [];
+            penaltyUsed = false;
+            loveUsed = false;
+            tries = 0;
+
+            if (mode === '1') {
+                low = 0;
+                high = 50;
+                maxHealth = 25;
+            } else if (mode === '2') {
+                low = 50;
+                high = 100;
+                maxHealth = 25;
+            } else if (mode === '520') {
+                low = 500;
+                high = 580;
+                maxHealth = 30;
+            } else if (mode === '3') {
+                low = 100;
+                high = 300;
+                maxHealth = 40;
+            } else {
+                low = 0;
+                high = 50;
+                maxHealth = 25;
+            }
+
+            health = maxHealth;
+            var exclude = [22, 88, 25, 44, 92, 150, 0, 52, 66, 180, 200, 580];
+            secret = Math.floor(Math.random() * (high - low + 1)) + low;
+            while (exclude.indexOf(secret) !== -1) {
+                secret = Math.floor(Math.random() * (high - low + 1)) + low;
+            }
+
+            penaltyNumber = null;
+            penaltyUsed = false;
+            if (mode === '3') {
+                penaltyNumber = Math.floor(Math.random() * (high - low + 1)) + low;
+                while ([22, 88, 25, 44, 92, 150, 0, 52, 66, 180, 200, 580, secret].indexOf(penaltyNumber) !== -1) {
+                    penaltyNumber = Math.floor(Math.random() * (high - low + 1)) + low;
+                }
+            }
+
+            loveNumber = null;
+            loveUsed = false;
+            if (mode === '2' || mode === '520') {
+                loveNumber = Math.floor(Math.random() * (high - low + 1)) + low;
+                while ([22, 25, 44, 52, 66, 88, 92, 150, 180, 200, 580, secret].indexOf(loveNumber) !== -1) {
+                    loveNumber = Math.floor(Math.random() * (high - low + 1)) + low;
+                }
+            }
+
+            gameActive = true;
+            guessInput.disabled = false;
+            guessBtn.disabled = false;
+            guessInput.value = '';
+            guessInput.focus();
+            setStatus('本喵心里想了一个 ' + low + ' 到 ' + high + ' 之间的数字');
+            setResult('开始猜吧');
+            updateUI();
+        }
+
+        function handleGuess() {
+            if (!gameActive) return;
+            var raw = guessInput.value.trim();
+            if (raw === '') {
+                setResult('请输入数字');
+                return;
+            }
+            var g = Number(raw);
+            if (!Number.isInteger(g)) {
+                setResult('请输入整数');
+                guessInput.value = '';
+                return;
+            }
+            guessInput.value = '';
+
+            if (removedNumbers.indexOf(g) !== -1) {
+                setResult('焦仲卿提示：' + g + ' 已被刘兰芝移除');
+                return;
+            }
+
+            if (g < low || g > high) {
+                setResult('乖，回去：' + g + ' 不在 ' + low + '-' + high + ' 之间');
+                return;
+            }
+
+            tries = tries + 1;
+
+            if (g === 22) {
+                var a1 = prompt('请问：李世民的年号是什么？');
+                if (a1 && a1.trim() === '贞观') {
+                    setResult('答对了，继续');
+                } else {
+                    health = health - 2;
+                    setResult('答错了，扣2滴血，剩余 ' + health);
+                    if (health <= 0) {
+                        endGame('血量耗尽，正确答案是 ' + secret, false);
+                        return;
+                    }
+                }
+                updateUI();
+                return;
+            }
+
+            if (g === 88) {
+                var a2 = prompt('清雅白姿，夏末秋初绽放，最常见的一种花是：');
+                if (a2 && ['茉莉', '栀子花', '白兰花', '夜来香'].indexOf(a2.trim()) !== -1) {
+                    setResult('答对了，继续');
+                } else {
+                    health = health - 2;
+                    setResult('答错了，扣2滴血，剩余 ' + health);
+                    if (health <= 0) {
+                        endGame('血量耗尽，正确答案是 ' + secret, false);
+                        return;
+                    }
+                }
+                updateUI();
+                return;
+            }
+
+            if (g === 92) {
+                health = health + 520;
+                setResult('荷你一起，血量+520，当前 ' + health);
+                updateUI();
+                return;
+            }
+
+            if ([25, 44, 150].indexOf(g) !== -1) {
+                setResult('你遭遇了孤剑之龙');
+                var score = 0;
+                var q1 = prompt('1：说出我国三个大一统王朝（用空格分隔）：');
+                if (q1) {
+                    var dynasties = ['秦', '汉', '晋', '隋', '唐', '宋', '元', '明', '清'];
+                    var found = [];
+                    for (var i = 0; i < dynasties.length; i++) {
+                        if (q1.indexOf(dynasties[i]) !== -1) {
+                            found.push(dynasties[i]);
+                        }
+                    }
+                    if (found.length >= 3) {
+                        score = score + 1;
+                        setResult('过关');
+                    } else {
+                        setResult('菜就多练');
+                    }
+                }
+                var q2 = prompt('2：请说出一句带「心」或「爱」的诗词：');
+                if (q2) {
+                    if (q2.trim() === '愿得一人心，白首不相离') {
+                        health = health + 1314;
+                        setResult('隐藏彩蛋，血量+1314');
+                        score = score + 2;
+                    } else if (q2.indexOf('心') !== -1 || q2.indexOf('爱') !== -1) {
+                        score = score + 1;
+                        setResult('过关');
+                    } else {
+                        setResult('该多多阅读纯爱三百首');
+                    }
+                }
+                var q3 = prompt('3：求导 f(x)=x^3+2x^2-5x+7，请输入 f\'(x)：');
+                if (q3 && (q3.indexOf('3x^2') !== -1 || q3.indexOf('3*x^2') !== -1)) {
+                    score = score + 1;
+                    setResult('数学不错');
+                } else {
+                    setResult('高考之后，你可闻一道数学');
+                }
+
+                if (score === 0) {
+                    endGame('孤剑之龙：你太让我失望了', false);
+                    return;
+                } else if (score === 1) {
+                    health = health + 2;
+                } else if (score === 2) {
+                    health = health + 4;
+                } else if (score >= 3) {
+                    health = health + 6;
+                }
+                setResult('血量+' + (score >= 3 ? 6 : score * 2) + '，当前 ' + health);
+                showImagePopup('long.gif', '孤剑之龙');
+                updateUI();
+                return;
+            }
+
+            if (low === 100 && high === 300 && penaltyNumber !== null && !penaltyUsed) {
+                if (g === penaltyNumber) {
+                    health = health - 15;
+                    penaltyUsed = true;
+                    setResult('天降雷罚，扣15血，剩余 ' + health);
+                    if (health <= 0) {
+                        endGame('不可控，正确答案是 ' + secret, false);
+                        return;
+                    }
+                    updateUI();
+                    return;
+                }
+            }
+
+            if (g === 520) {
+                health = health + 2;
+                setResult('你来啦，吾爱啊，血量+2，当前 ' + health);
+                updateUI();
+                return;
+            }
+
+            if ((currentMode === '2' || currentMode === '520') && loveNumber !== null && !loveUsed) {
+                if (g === loveNumber) {
+                    loveUsed = true;
+                    setResult('欢迎来到天柱山');
+                    var allNums = [];
+                    for (var j = low; j <= high; j++) {
+                        allNums.push(j);
+                    }
+                    var specials = [22, 25, 44, 52, 66, 88, 92, 150, 180, 200, 0, secret];
+                    var available = [];
+                    for (var k = 0; k < allNums.length; k++) {
+                        if (specials.indexOf(allNums[k]) === -1 && allNums[k] !== secret) {
+                            available.push(allNums[k]);
+                        }
+                    }
+                    var removeCount = Math.min(3, available.length);
+                    if (removeCount > 0) {
+                        var shuffled = available.slice();
+                        for (var m = shuffled.length - 1; m > 0; m--) {
+                            var r = Math.floor(Math.random() * (m + 1));
+                            var tmp = shuffled[m];
+                            shuffled[m] = shuffled[r];
+                            shuffled[r] = tmp;
+                        }
+                        var removed = shuffled.slice(0, removeCount);
+                        for (var n = 0; n < removed.length; n++) {
+                            removedNumbers.push(removed[n]);
+                        }
+                        setResult('刘兰芝帮你移除了 ' + removeCount + ' 个数字：' + removed.join(', '));
+                    } else {
+                        setResult('没有多余数字可以移除');
+                    }
+                    showImagePopup('aishan.png', '天柱山');
+                    updateUI();
+                    return;
+                }
+            }
+
+            if (g === 0) {
+                saveEnding('虚无之路');
+                showImagePopup('jieju_0.jpg', '虚无之路');
+                endGame('虚无之路', true);
+                return;
+            }
+            if (g === 52) {
+                saveEnding('吾爱之路');
+                playLoveMusic();
+                showImagePopup('jieju_52.jpg', '吾爱之路');
+                endGame('吾爱之路', true);
+                return;
+            }
+            if (g === 66) {
+                saveEnding('遂心之路');
+                showImagePopup('jieju_66.gif', '遂心之路');
+                endGame('遂心之路', true);
+                return;
+            }
+            if (g === 180) {
+                saveEnding('光明之路');
+                showImagePopup('jieju_180.jpg', '光明之路');
+                endGame('光明之路', true);
+                return;
+            }
+            if (g === 200) {
+                saveEnding('死亡之路');
+                showImagePopup('jieju_200.gif', '死亡之路');
+                endGame('死亡之路', true);
+                return;
+            }
+            if (g === 580) {
+                saveEnding('拥抱后的微笑');
+                showImagePopup('weixiao.gif', '拥抱后的微笑');
+                endGame('拥抱后的微笑', true);
+                return;
+            }
+
+            if (g < secret) {
+                health--;
+                setResult('猜低咯，再大一点，剩余 ' + health);
+            } else if (g > secret) {
+                health--;
+                setResult('猜高咯，再小一点，剩余 ' + health);
+            } else {
+                var msg = '恭喜，数字就是 ' + secret + '，用了 ' + tries + ' 次，剩余 ' + health + ' 血';
+                if (low === 0 && high === 50) {
+                    msg = msg + '  经典之光';
+                    showImagePopup('jingdian.gif', '经典之光');
+                } else if ((low === 50 && high === 100) || (low === 500 && high === 580)) {
+                    msg = msg + '  爱之铭心';
+                    showImagePopup('heni.gif', '爱之铭心');
+                } else if (low === 100 && high === 300) {
+                    msg = msg + '  王之巅峰';
+                    showImagePopup('wangzhe.gif', '王之巅峰');
+                }
+                endGame(msg, true);
+                return;
+            }
+
+            if (health <= 0) {
+                endGame('血量耗尽，正确答案是 ' + secret, false);
+                return;
+            }
+
+            if (health <= 10 && !usedShift && shiftTriggered.indexOf(health) === -1) {
+                shiftTriggered.push(health);
+                if (confirm('血量降到了 ' + health + '，要降低难度换挡吗？')) {
+                    usedShift = true;
+                    if (low === 100 && high === 300) {
+                        low = 50;
+                        high = 100;
+                        maxHealth = 25;
+                        health = 25;
+                    } else if ((low === 50 && high === 100) || (low === 500 && high === 580)) {
+                        low = 0;
+                        high = 50;
+                        maxHealth = 25;
+                        health = 25;
+                    } else {
+                        setResult('你已经是最低难度了，无法再降档');
+                        updateUI();
+                        return;
+                    }
+                    var ex2 = [22, 88, 25, 44, 92, 150, 0, 52, 66, 180, 200, 580];
+                    secret = Math.floor(Math.random() * (high - low + 1)) + low;
+                    while (ex2.indexOf(secret) !== -1) {
+                        secret = Math.floor(Math.random() * (high - low + 1)) + low;
+                    }
+                    setStatus('本喵心里想了一个 ' + low + ' 到 ' + high + ' 之间的数字');
+                    setResult('已换挡到 ' + low + '-' + high + '，血量恢复到 ' + health);
+                    updateUI();
+                    return;
+                }
+            }
+            updateUI();
+        }
+
+        for (var b = 0; b < modeBtns.length; b++) {
+            (function(btn) {
+                btn.addEventListener('click', function() {
+                    for (var c = 0; c < modeBtns.length; c++) {
+                        modeBtns[c].classList.remove('active');
+                    }
+                    this.classList.add('active');
+                    var mode = this.getAttribute('data-mode');
+                    startGame(mode);
+                });
+            })(modeBtns[b]);
+        }
+
+        guessBtn.addEventListener('click', handleGuess);
+        guessInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                handleGuess();
+            }
+        });
+
+        imgPopup.addEventListener('click', function(e) {
+            if (e.target === this) closeImgPopup();
+        });
+
+        updateUI();
+    </script>
+
+</body>
+</html>
